@@ -42,10 +42,21 @@ namespace Core.IdentityWeb
 
             services.AddDbContext<IdentityWebUserDbContext>(opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly)));
 
-            services.AddIdentityCore<IdentityWebUser>(options => { });
-            services.AddScoped<IUserStore<IdentityWebUser>, UserOnlyStore<IdentityWebUser, IdentityWebUserDbContext>>();
+            services.AddIdentity<IdentityWebUser, IdentityRole>(options => {
+                    options.Tokens.EmailConfirmationTokenProvider = "emailconf";
+                })
+                .AddEntityFrameworkStores<IdentityWebUserDbContext>()
+                .AddDefaultTokenProviders()
+                .AddTokenProvider<EmailConfirmationTokenProvider<IdentityWebUser>>("emailconf");
 
-            services.AddAuthentication("cookies").AddCookie("cookies", options => options.LoginPath = "/Home/Login");
+
+            services.AddScoped<IUserStore<IdentityWebUser>, UserOnlyStore<IdentityWebUser, IdentityWebUserDbContext>>();
+            services.AddScoped<IUserClaimsPrincipalFactory<IdentityWebUser>, IdentityWebUserClaimsPrincipalFactory>();
+
+            services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(3));
+            services.Configure<EmailConfirmationTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromDays(2));
+
+            services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
