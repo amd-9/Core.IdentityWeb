@@ -68,6 +68,13 @@ namespace Core.IdentityWeb
             services.Configure<EmailConfirmationTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromDays(2));
 
             services.ConfigureApplicationCookie(options => options.LoginPath = "/Home/Login");
+
+            services.AddAuthentication().AddGoogle("google", options =>
+             {
+                 options.ClientId = "id";
+                 options.ClientSecret = "secret";
+                 options.SignInScheme = IdentityConstants.ExternalScheme;
+             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
