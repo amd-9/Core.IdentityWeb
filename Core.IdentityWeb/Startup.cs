@@ -42,12 +42,23 @@ namespace Core.IdentityWeb
 
             services.AddDbContext<IdentityWebUserDbContext>(opt => opt.UseSqlServer(connectionString, sql => sql.MigrationsAssembly(migrationAssembly)));
 
-            services.AddIdentity<IdentityWebUser, IdentityRole>(options => {
-                    options.Tokens.EmailConfirmationTokenProvider = "emailconf";
-                })
+            services.AddIdentity<IdentityWebUser, IdentityRole>(options =>
+            {
+                options.Tokens.EmailConfirmationTokenProvider = "emailconf";
+
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredUniqueChars = 4;
+
+                options.User.RequireUniqueEmail = true;
+
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 3;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(10);
+            })
                 .AddEntityFrameworkStores<IdentityWebUserDbContext>()
                 .AddDefaultTokenProviders()
-                .AddTokenProvider<EmailConfirmationTokenProvider<IdentityWebUser>>("emailconf");
+                .AddTokenProvider<EmailConfirmationTokenProvider<IdentityWebUser>>("emailconf")
+                .AddPasswordValidator<DoesNotContainPasswordValidator<IdentityWebUser>>();
 
 
             services.AddScoped<IUserStore<IdentityWebUser>, UserOnlyStore<IdentityWebUser, IdentityWebUserDbContext>>();
