@@ -35,6 +35,10 @@
                     <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Register">Register</a></li>
                     <li><a asp-area="" asp-controller="Home" asp-action="Login">Login</a></li>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <li><a asp-area="" asp-controller="Home" asp-action="RegisterAuthenticator">Register Authenticator</a></li>
+                    }
                 </ul>
             </div>
         </div>
